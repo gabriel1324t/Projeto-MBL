@@ -15,11 +15,11 @@ import {
   Platform,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native"; // ← ADICIONADO
+import { useNavigation } from "@react-navigation/native"; 
 import api from "../axios/axios";
 
 export default function EstabelecimentosModal({ visible, onClose, item }) {
-  const navigation = useNavigation(); // ← ADICIONADO
+  const navigation = useNavigation();
 
   const [favorito, setFavorito] = useState(false);
   const [favoritoId, setFavoritoId] = useState(null);
@@ -164,6 +164,7 @@ export default function EstabelecimentosModal({ visible, onClose, item }) {
           style={styles.containerWrapper}
         >
           <View style={styles.container}>
+
             {/* Cabeçalho */}
             <View style={styles.header}>
               <View style={styles.headerLeft}>
@@ -194,6 +195,7 @@ export default function EstabelecimentosModal({ visible, onClose, item }) {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 80 }}
               >
+
                 <View style={styles.infoRow}>
                   <Text style={styles.infoTitle}>Endereço</Text>
                   <Text style={styles.infoValue}>{item.endereco || "—"}</Text>
@@ -225,16 +227,27 @@ export default function EstabelecimentosModal({ visible, onClose, item }) {
                   </Pressable>
                 )}
 
-                {/* BOTÃO PARA ABRIR O MAPA */}
+                {/*  BOTÃO EDITADO – AGORA ABRE O GOOGLE MAPS */}
                 <Pressable
                   style={styles.mapButton}
                   onPress={() => {
-                    onClose();
-                    navigation.navigate("MapaScreen", { item });
+                    if (!item?.endereco) {
+                      return Alert.alert(
+                        "Erro",
+                        "Endereço não disponível."
+                      );
+                    }
+
+                    const enderecoQuery = encodeURIComponent(item.endereco);
+                    const url = `https://www.google.com/maps/search/?api=1&query=${enderecoQuery}`;
+
+                    Linking.openURL(url).catch(() => {
+                      Alert.alert("Erro", "Não foi possível abrir o Google Maps.");
+                    });
                   }}
                 >
                   <Text style={styles.mapButtonText}>
-                    Ver localização no mapa
+                    Abrir no Google Maps
                   </Text>
                 </Pressable>
 
@@ -252,6 +265,7 @@ export default function EstabelecimentosModal({ visible, onClose, item }) {
                 <Text style={[styles.sectionTitle, { marginTop: 8 }]}>
                   Comentários
                 </Text>
+
                 {loadingAval ? (
                   <ActivityIndicator style={{ marginVertical: 10 }} />
                 ) : avaliacoes.length === 0 ? (
@@ -380,7 +394,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   scheduleText: { fontSize: 13, color: "#2c3e50", fontWeight: "500" },
-
   ratingHeader: {
     flexDirection: "row",
     alignItems: "center",
